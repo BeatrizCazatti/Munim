@@ -192,31 +192,6 @@ private struct IntegrationsSettingsView: View {
                                 .foregroundStyle(.orange)
                         }
                     }
-                    Button(role: .destructive) {
-                        model.disconnectGoogle()
-                    } label: {
-                        Label("Desconectar Conta", systemImage: "person.crop.circle.badge.minus")
-                    }
-                    // Na sua View:
-                    Button(role: .destructive) {
-                        showDeleteConfirmation = true
-                    } label: {
-                        Text("Excluir Conta permanentemente")
-                    }
-                    .confirmationDialog(
-                        "Tem certeza que deseja excluir sua conta permanentemente?",
-                        isPresented: $showDeleteConfirmation,
-                        titleVisibility: .visible
-                    ) {
-                        Button("Excluir Conta", role: .destructive) {
-                            Task {
-                                await model.deleteAccount()
-                            }
-                        }
-                        Button("Cancelar", role: .cancel) {}
-                    }
-
-
                 }
             } header: {
                 Text("Google Workspace")

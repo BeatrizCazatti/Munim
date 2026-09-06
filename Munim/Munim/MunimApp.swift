@@ -18,7 +18,7 @@ struct MunimApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AppFlowView(authService: authService)
+            AppFlowView(authService: authService, onOpenURL: handleDeepLink)
                 .environment(authService)
                 .environment(\.appTheme, theme)
                 .tint(theme.accentColor)
@@ -107,7 +107,14 @@ struct MunimApp: App {
 
                 // Buscar person logada
                 let people: [PersonDTO] = try await APIClient.shared.request("/api/people")
-                let person = people.first ?? PersonDTO(
+                let identity = AuthService.identity(from: token)
+                let person = people.first(where: { $0.id == identity.personID })
+                    ?? people.first(where: {
+                        guard let profileEmail = identity.email,
+                              let personEmail = $0.email else { return false }
+                        return personEmail.caseInsensitiveCompare(profileEmail) == .orderedSame
+                    })
+                    ?? people.first ?? PersonDTO(
                     name: "Usuário",
                     jobTitle: "",
                     active: true,
@@ -137,6 +144,7 @@ struct MunimApp: App {
 
 private struct AppFlowView: View {
     let authService: AuthService
+    let onOpenURL: (URL) -> Void
 
     private enum Screen: Equatable {
         case onboarding   // Boas-vindas + botão "Iniciar com Google Workspace"
@@ -149,8 +157,9 @@ private struct AppFlowView: View {
     @State private var syncWarning: String?
     @State private var isShowingDebugInspector: Bool = false
 
-    init(authService: AuthService) {
+    init(authService: AuthService, onOpenURL: @escaping (URL) -> Void) {
         self.authService = authService
+        self.onOpenURL = onOpenURL
         _screen = State(initialValue: authService.isAuthenticated ? .dashboard : .onboarding)
     }
 
@@ -159,12 +168,14 @@ private struct AppFlowView: View {
             Group {
                 switch screen {
                 case .onboarding:
-                    OnboardingView(onFinish: { /* aguarda deep-link */ })
+                    OnboardingView(onFinish: onOpenURL)
                         .environment(authService)
 
                 case .loading:
                     LoadingView(syncWarning: $syncWarning) {
-                        screen = .ready
+                        // Após concluir a preparação, entra diretamente na área
+                        // principal com o perfil que acabou de autenticar.
+                        screen = .dashboard
                     }
                     .environment(authService)
 
