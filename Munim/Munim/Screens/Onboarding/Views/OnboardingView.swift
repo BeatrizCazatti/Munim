@@ -8,13 +8,17 @@ enum OnboardingStep {
 }
 
 struct OnboardingView: View {
-    let onFinish: () -> Void
+    /// Entrega o callback capturado por `ASWebAuthenticationSession` ao fluxo
+    /// principal do app. Em macOS, esse callback não passa necessariamente por
+    /// `onOpenURL`, pois a sessão de autenticação pode consumi-lo primeiro.
+    let onFinish: (URL) -> Void
 
     @Environment(AuthService.self) private var authService
 
     @State private var currentStep: OnboardingStep = .welcome
     @State private var isLoadingAuthURL: Bool = false
     @State private var authError: String?
+    @State private var authenticationSession: ASWebAuthenticationSession?
 
     @ScaledMetric(relativeTo: .title) private var welcomeTitleSize: CGFloat = 28
     @ScaledMetric(relativeTo: .largeTitle) private var brandTitleSize: CGFloat = 64
@@ -24,7 +28,7 @@ struct OnboardingView: View {
     @ScaledMetric(relativeTo: .body) private var supportingTextSize: CGFloat = 15
     @ScaledMetric(relativeTo: .body) private var buttonTextSize: CGFloat = 16
 
-    init(onFinish: @escaping () -> Void = {}) {
+    init(onFinish: @escaping (URL) -> Void = { _ in }) {
         self.onFinish = onFinish
     }
     
@@ -225,16 +229,26 @@ struct OnboardingView: View {
                 
                 let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: callbackURLScheme) { callbackURL, error in
                     if let error = error {
-                        authError = "Não foi possível conectar ao servidor: \(error.localizedDescription)"
+                        Task { @MainActor in
+                            authenticationSession = nil
+                            authError = "Não foi possível conectar ao servidor: \(error.localizedDescription)"
+                        }
                         return
                     }
                     
                     guard let callbackURL = callbackURL else { return }
-                    // Lógica de tratamento do callback aqui
+                    Task { @MainActor in
+                        authenticationSession = nil
+                        onFinish(callbackURL)
+                    }
                 }
                 
                 // Atribui a classe compatível com NSObject
                 session.presentationContextProvider = presentationProvider
+                // A sessão precisa permanecer viva até o Google redirecionar ao app.
+                // Sem essa referência, ela é desalocada ao fim desta função e o
+                // callback nunca atualiza `AuthService.isAuthenticated`.
+                authenticationSession = session
                 session.start()
                 
             } catch {
