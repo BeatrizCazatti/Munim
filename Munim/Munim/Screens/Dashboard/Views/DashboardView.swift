@@ -26,6 +26,7 @@ struct DashboardView: View {
     @State private var deletedItems: [StoredBoardItem] = []
     @State private var archivedItem: StoredBoardItem?
     @State private var isArchiveUndoPresented = false
+    @State private var persistenceError: String?
     @State private var searchText: String = ""
     @State private var selectedWeek = WeekRange(start: Date())
     @Environment(\.appTheme) private var theme
@@ -83,16 +84,14 @@ struct DashboardView: View {
             dashboardService.startPolling(intervalSeconds: 30)
             Task {
                 await dashboardService.loadDashboard()
-                columns = dashboardService.boardColumns
-                refreshBadgeStore()
+                applyArchiveState(to: dashboardService.boardColumns)
             }
         }
         .onDisappear {
             dashboardService.stopPolling()
         }
         .onChange(of: dashboardService.boardColumns) { _, newCols in
-            columns = newCols
-            refreshBadgeStore()
+            applyArchiveState(to: newCols)
         }
         .onChange(of: selectedWeek) { _, _ in
             refreshBadgeStore()
@@ -107,6 +106,14 @@ struct DashboardView: View {
         } message: {
             Text("O card foi removido do board.")
         }
+        .alert("Não foi possível salvar", isPresented: Binding(
+            get: { persistenceError != nil },
+            set: { if !$0 { persistenceError = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(persistenceError ?? "Tente novamente.")
+        }
     }
 
     private func markAsReviewed(itemID: BoardItem.ID, in columnID: BoardColumn.ID) {
@@ -119,11 +126,21 @@ struct DashboardView: View {
     }
 
     private func updateItem(itemID: BoardItem.ID, in columnID: BoardColumn.ID, with draft: BoardItemDraft) {
-        guard let columnIndex = columns.firstIndex(where: { $0.id == columnID }) else { return }
+        guard let columnIndex = columns.firstIndex(where: { $0.id == columnID }),
+              let itemIndex = columns[columnIndex].items.firstIndex(where: { $0.id == itemID }) else { return }
+        let originalItem = columns[columnIndex].items[itemIndex]
         columns[columnIndex].update(itemID: itemID, with: draft)
         refreshBadgeStore()
         Task {
-            await dashboardService.updateItem(itemID: itemID, draft: draft)
+            do {
+                try await dashboardService.updateItem(itemID: itemID, draft: draft)
+            } catch {
+                guard let currentColumnIndex = columns.firstIndex(where: { $0.id == columnID }),
+                      let currentItemIndex = columns[currentColumnIndex].items.firstIndex(where: { $0.id == itemID }) else { return }
+                columns[currentColumnIndex].items[currentItemIndex] = originalItem
+                refreshBadgeStore()
+                persistenceError = error.localizedDescription
+            }
         }
     }
 
@@ -133,6 +150,7 @@ struct DashboardView: View {
 
         archivedItem = StoredBoardItem(columnID: columnID, teamName: columns[columnIndex].title, item: removedItem.item, index: removedItem.index, storedAt: Date())
         archivedItems.append(archivedItem!)
+        ArchivedItemsStore.shared.archive(removedItem.item.persistentKey)
         refreshBadgeStore()
         isArchiveUndoPresented = true
     }
@@ -164,6 +182,7 @@ struct DashboardView: View {
 
     private func unarchiveItem(_ storedItem: StoredBoardItem) {
         guard restoreToBoard(storedItem) else { return }
+        ArchivedItemsStore.shared.restore(storedItem.item.persistentKey)
         archivedItems.removeAll { $0.id == storedItem.id }
         if archivedItem?.id == storedItem.id {
             archivedItem = nil
@@ -198,6 +217,38 @@ struct DashboardView: View {
     private func purgeExpiredDeletedItems() {
         let expirationDate = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
         deletedItems.removeAll { $0.storedAt < expirationDate }
+    }
+
+    /// Aplica os arquivamentos persistidos sobre o snapshot recém-chegado da API.
+    /// Sem isso, o polling recriaria os cards arquivados a cada atualização.
+    private func applyArchiveState(to incomingColumns: [BoardColumn]) {
+        var visibleColumns = incomingColumns
+        var restoredArchivedItems: [StoredBoardItem] = []
+
+        for columnIndex in visibleColumns.indices {
+            let column = visibleColumns[columnIndex]
+            let archivedIndices = column.items.indices.filter {
+                ArchivedItemsStore.shared.record(for: column.items[$0].persistentKey) != nil
+            }
+
+            for itemIndex in archivedIndices.reversed() {
+                let item = visibleColumns[columnIndex].items.remove(at: itemIndex)
+                guard let record = ArchivedItemsStore.shared.record(for: item.persistentKey) else { continue }
+                restoredArchivedItems.append(
+                    StoredBoardItem(
+                        columnID: column.id,
+                        teamName: column.title,
+                        item: item,
+                        index: itemIndex,
+                        storedAt: record.storedAt
+                    )
+                )
+            }
+        }
+
+        columns = visibleColumns
+        archivedItems = restoredArchivedItems.sorted { $0.storedAt > $1.storedAt }
+        refreshBadgeStore()
     }
 }
 
@@ -714,18 +765,18 @@ private struct DashboardToolbarControls: View {
         }
         .padding(3)
         .background {
-            ZStack {
+            if #available(macOS 26.0, *) {
+                Capsule(style: .continuous)
+                    .glassEffect(.regular, in: .capsule)
+            } else {
                 Capsule(style: .continuous)
                     .fill(.ultraThinMaterial)
-                Capsule(style: .continuous)
-                    .fill(Color.black.opacity(0.35))
+                    .overlay {
+                        Capsule(style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5)
+                    }
             }
         }
-        .overlay {
-            Capsule(style: .continuous)
-                .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
-        }
-        .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
         .animation(.snappy(duration: 0.22), value: isSearchExpanded)
     }
 }
@@ -841,7 +892,7 @@ private struct DashboardToolbarIconButton: View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(Color.Token.textSecondary)
+                .foregroundStyle(Color.primary)
                 .frame(width: 30, height: 30)
                 .contentShape(Circle())
         }
@@ -997,7 +1048,7 @@ struct NewBoardItemSheet: View {
                 }
                 Button("Criar item") {
                     draft.assignees = assignees(from: assigneesText)
-                    draft.dateText = formattedDateAndTime(scheduledDate)
+                    draft.scheduledAt = scheduledDate
                     createItem(draft, selectedTeam, selectedCategory)
                     dismiss()
                 }
@@ -1039,6 +1090,7 @@ struct BoardView: View {
                     let displayColumn = rawColumn.filtered(by: filter, matching: searchText, in: selectedWeek)
                     BoardColumnView(
                         column: displayColumn,
+                        people: people,
                         onSelectTeam: {
                             selectedTeam = TeamDetail(column: rawColumn, people: people)
                         },
@@ -1202,6 +1254,7 @@ private struct PendingDeletion: Identifiable {
 
 struct BoardColumnView: View {
     let column: BoardColumn
+    let people: [PersonDTO]
     let onSelectTeam: () -> Void
     let markAsReviewed: (BoardItem.ID) -> Void
     let updateItem: (BoardItem.ID, BoardItemDraft) -> Void
@@ -1235,6 +1288,7 @@ struct BoardColumnView: View {
                         ForEach(column.items) { item in
                             BoardItemCardView(
                                 item: item,
+                                people: people,
                                 markAsReviewed: markAsReviewed,
                                 updateItem: updateItem,
                                 archiveItem: archiveItem,
@@ -1272,6 +1326,7 @@ struct EmptyColumnView: View {
 
 struct BoardItemCardView: View {
     let item: BoardItem
+    let people: [PersonDTO]
     let markAsReviewed: (BoardItem.ID) -> Void
     let updateItem: (BoardItem.ID, BoardItemDraft) -> Void
     let archiveItem: (BoardItem.ID) -> Void
@@ -1356,7 +1411,7 @@ struct BoardItemCardView: View {
         .fixedSize(horizontal: false, vertical: true)
         .modifier(BoardItemCardModifier(isAwaitingReview: item.isAwaitingReview))
         .sheet(isPresented: $isEditing) {
-            BoardItemEditorSheet(item: item) { draft in
+            BoardItemEditorSheet(item: item, people: people) { draft in
                 updateItem(item.id, draft)
             }
         }
@@ -1463,20 +1518,24 @@ extension View {
 
 private struct BoardItemEditorSheet: View {
     let item: BoardItem
+    let people: [PersonDTO]
     let save: (BoardItemDraft) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var draft: BoardItemDraft
-    @State private var assigneesText: String
-    @State private var scheduledDate: Date
-    @State private var didChangeScheduledDate = false
+    @State private var selectedPersonID: UUID?
 
-    init(item: BoardItem, save: @escaping (BoardItemDraft) -> Void) {
+    init(item: BoardItem, people: [PersonDTO], save: @escaping (BoardItemDraft) -> Void) {
         self.item = item
+        self.people = people
         self.save = save
         _draft = State(initialValue: BoardItemDraft(item: item))
-        _assigneesText = State(initialValue: item.assignees.map(\.name).joined(separator: ", "))
-        _scheduledDate = State(initialValue: .now)
+        _selectedPersonID = State(initialValue: people.first(where: { person in
+            guard let id = person.id else { return false }
+            return item.assignees.contains { assignee in
+                assignee.name == person.name || assignee.name.hasPrefix("\(person.name) &")
+            } && id == person.id
+        })?.id)
     }
 
     var body: some View {
@@ -1488,23 +1547,38 @@ private struct BoardItemEditorSheet: View {
 
             ScrollView {
                 Form {
-                    TextField("Título", text: $draft.title)
-                    TextField("Responsáveis", text: $assigneesText)
-                    DatePicker(
-                        "Data e hora",
-                        selection: $scheduledDate,
-                        displayedComponents: [.date, .hourAndMinute]
-                    )
-                    .datePickerStyle(.compact)
-                    .onChange(of: scheduledDate) {
-                        didChangeScheduledDate = true
+                    Section {
+                        TextField("Título", text: $draft.title)
+                        Picker("Responsável", selection: $selectedPersonID) {
+                            Text("Sem responsável").tag(UUID?.none)
+                            ForEach(availablePeople, id: \.id) { person in
+                                Text(person.name).tag(Optional(person.id!))
+                            }
+                        }
                     }
-                    TextField("Local", text: $draft.location)
 
-                    BoardItemPriorityPicker(selection: $draft.priority)
+                    Section("Agendamento") {
+                        DatePicker(
+                            "Data",
+                            selection: $draft.scheduledAt,
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(.graphical)
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Descrição")
+                        DatePicker(
+                            "Horário",
+                            selection: $draft.scheduledAt,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .datePickerStyle(.compact)
+                    }
+
+                    Section {
+                        TextField("Local", text: $draft.location)
+                        BoardItemPriorityPicker(selection: $draft.priority)
+                    }
+
+                    Section("Descrição") {
                         TextEditor(text: $draft.description)
 //                            .font(.body)
                             .adaptiveTextStyle(.body)
@@ -1522,10 +1596,10 @@ private struct BoardItemEditorSheet: View {
                     dismiss()
                 }
                 Button("Salvar") {
-                    draft.assignees = assignees(from: assigneesText)
-                    if didChangeScheduledDate {
-                        draft.dateText = formattedDateAndTime(scheduledDate)
-                    }
+                    draft.assigneeID = selectedPersonID
+                    draft.assignees = availablePeople
+                        .first(where: { $0.id == selectedPersonID })
+                        .map { [Assignee(name: $0.name, isGroup: false)] } ?? []
                     save(draft)
                     dismiss()
                 }
@@ -1536,6 +1610,12 @@ private struct BoardItemEditorSheet: View {
         .padding(24)
         .frame(width: 460, height: 600)
     }
+
+    private var availablePeople: [PersonDTO] {
+        people
+            .filter { $0.active && $0.id != nil }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
 }
 
 private func assignees(from names: String) -> [Assignee] {
@@ -1545,18 +1625,6 @@ private func assignees(from names: String) -> [Assignee] {
             let trimmedName = name.trimmingCharacters(in: .whitespaces)
             return Assignee(name: trimmedName, isGroup: trimmedName.contains("&"))
         }
-}
-
-private func formattedDateAndTime(_ date: Date) -> String {
-    date.formatted(
-        .dateTime
-            .locale(Locale(identifier: "pt_BR"))
-            .day()
-            .month(.abbreviated)
-            .year()
-            .hour()
-            .minute()
-    )
 }
 
 private struct BoardItemPriorityPicker: View {
