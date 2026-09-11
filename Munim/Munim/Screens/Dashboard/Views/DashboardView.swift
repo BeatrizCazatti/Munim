@@ -661,15 +661,14 @@ private struct DashboardToolbarControls: View {
 
             Divider()
                 .frame(height: 18)
-
+ 
             // 3. Buscar (Lupa compacta que expande dentro da mesma cápsula)
             if isSearchExpanded {
                 HStack(spacing: 6) {
                     Image(systemName: "magnifyingglass")
-//                        .font(.caption.weight(.semibold))
                         .adaptiveTextStyle(.caption)
                         .fontWeight(Font.Weight.semibold)
-                        .foregroundStyle(Color.Token.interactiveAccent)
+                        .foregroundStyle(Color.primary)
                         .padding(.leading, 8)
 
                     TextField("Buscar cards…", text: $searchText)
@@ -678,6 +677,7 @@ private struct DashboardToolbarControls: View {
                         .adaptiveTextStyle(.callout)
                         .foregroundStyle(Color.Token.textPrimary)
                         .focused($isSearchFocused)
+                        .onAppear { isSearchFocused = true }
                         .frame(minWidth: 160, idealWidth: 200)
                         .onSubmit {
                             RecentSearchesStore.shared.addSearch(searchText)
@@ -709,11 +709,9 @@ private struct DashboardToolbarControls: View {
                         }
                     } label: {
                         Image(systemName: "xmark")
-//                            .font(.caption2.weight(.bold))
                             .adaptiveTextStyle(.caption2)
                             .fontWeight(.bold)
-                            .fontWeight(Font.Weight.bold)
-                            .foregroundStyle(Color.Token.textSecondary)
+                            .foregroundStyle(Color.primary)
                             .frame(width: 24, height: 24)
                             .contentShape(Circle())
                     }
