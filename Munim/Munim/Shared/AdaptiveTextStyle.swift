@@ -35,11 +35,7 @@ struct AdaptiveTextStyle: ViewModifier {
     private var macOSTextScale = 1.5
 
     func body(content: Content) -> some View {
-        #if os(macOS)
         content.font(.system(size: style.macOSBaseSize * macOSTextScale))
-        #else
-        content.font(style.iOS)
-        #endif
     }
 }
 
