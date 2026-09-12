@@ -12,21 +12,6 @@ enum AppTextStyle {
     case caption
     case caption2
 
-    var iOS: Font {
-        switch self {
-        case .largeTitle: .largeTitle
-        case .title: .title
-        case .title2: .title2
-        case .title3: .title3
-        case .headline: .headline
-        case .subheadline: .subheadline
-        case .body: .body
-        case .callout: .callout
-        case .caption: .caption
-        case .caption2: .caption2
-        }
-    }
-
     var macOSBaseSize: CGFloat {
         switch self {
         case .largeTitle: 28
