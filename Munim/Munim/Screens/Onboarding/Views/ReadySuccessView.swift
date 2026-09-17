@@ -66,7 +66,8 @@ struct ReadySuccessView: View {
                 characterIllustration(geometry: geometry)
             }
         }
-        .background(Color.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(OnboardingTheme.background)
         .ignoresSafeArea()
         .onAppear {
             animateBubbles = true
