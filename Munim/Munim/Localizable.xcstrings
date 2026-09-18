@@ -118,6 +118,9 @@
         }
       }
     },
+    "%lld%%" : {
+
+    },
     "⚠️ MUITO IMPORTANTE: Ação Destrutiva e Irreversível" : {
 
     },
@@ -323,7 +326,13 @@
         }
       }
     },
+    "Agendamento" : {
+
+    },
     "Agressivo" : {
+
+    },
+    "Ajusta o tamanho base de todos os textos do app no macOS. Valor padrão: 150%." : {
 
     },
     "Alertas de novas decisões detectadas" : {
@@ -495,6 +504,9 @@
           }
         }
       }
+    },
+    "As alterações feitas nos metadados não serão salvas." : {
+
     },
     "As notificações respeitam o modo Foco do macOS." : {
       "extractionState" : "manual",
@@ -1095,6 +1107,9 @@
     "Conta de Serviço" : {
 
     },
+    "Continuar editando" : {
+
+    },
     "Contratado em" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1392,6 +1407,12 @@
           }
         }
       }
+    },
+    "Descartar alterações" : {
+
+    },
+    "Descartar alterações?" : {
+
     },
     "Desconectado" : {
       "extractionState" : "manual",
@@ -1791,6 +1812,9 @@
         }
       }
     },
+    "Escala do texto" : {
+
+    },
     "Escolha a paleta visual aplicada ao dashboard e à janela principal." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2026,6 +2050,9 @@
           }
         }
       }
+    },
+    "Exemplo" : {
+
     },
     "Exigir confirmação manual prévia antes de criar agendamentos no calendário" : {
 
@@ -2268,6 +2295,9 @@
           }
         }
       }
+    },
+    "Horário" : {
+
     },
     "Ícones" : {
       "extractionState" : "manual",
@@ -2929,6 +2959,9 @@
           }
         }
       }
+    },
+    "Não foi possível salvar" : {
+
     },
     "Não selecionado" : {
 
@@ -4018,6 +4051,9 @@
         }
       }
     },
+    "Sem responsável" : {
+
+    },
     "Sem time" : {
 
     },
@@ -4307,6 +4343,9 @@
           }
         }
       }
+    },
+    "Tamanho do Texto" : {
+
     },
     "Tarefa" : {
       "extractionState" : "manual",
