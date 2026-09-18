@@ -29,12 +29,15 @@ struct SearchFieldView: View {
             // Campo de texto principal
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
-                    .font(.body.weight(.medium))
+//                    .font(.body.weight(.medium))
+                    .adaptiveTextStyle(.body)
+                    .fontWeight(.medium)
                     .foregroundStyle(isFocused ? Color.Token.interactiveAccent : Color.Token.textSecondary)
 
                 TextField(placeholder, text: $searchText)
                     .textFieldStyle(.plain)
-                    .font(.body)
+//                    .font(.body)
+                    .adaptiveTextStyle(.body)
                     .foregroundStyle(Color.Token.textPrimary)
                     .focused($isTextFieldFocused)
                     .onChange(of: searchText) { _, newValue in
@@ -66,7 +69,9 @@ struct SearchFieldView: View {
                         }
                     }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.body.weight(.medium))
+//                            .font(.body.weight(.medium))
+                            .adaptiveTextStyle(.body)
+                            .fontWeight(.medium)
                             .foregroundStyle(Color.Token.textSecondary)
                     }
                     .buttonStyle(.plain)
@@ -168,8 +173,10 @@ private struct SearchSuggestionsSection: View {
         VStack(alignment: .leading, spacing: 0) {
             // Cabeçalho com título e botão "Limpar Tudo"
             HStack {
-                Text(LocalizedStringKey(title))
-                    .font(.caption.weight(.semibold))
+                Text(title)
+//                    .font(.caption.weight(.semibold))
+                    .adaptiveTextStyle(.caption)
+                    .fontWeight(Font.Weight.semibold)
                     .foregroundStyle(Color.Token.textSecondary)
                     .textCase(.uppercase)
                     .tracking(0.5)
@@ -178,7 +185,9 @@ private struct SearchSuggestionsSection: View {
 
                 if showClearAll {
                     Button("Limpar Tudo", action: onClearAll ?? {})
-                        .font(.caption.weight(.medium))
+//                        .font(.caption.weight(.medium))
+                        .adaptiveTextStyle(.caption)
+                        .fontWeight(.medium)
                         .foregroundStyle(Color.Token.interactiveAccent)
                         .buttonStyle(.plain)
                 }
@@ -225,12 +234,16 @@ private struct SearchSuggestionRow: View {
         Button(action: onTap) {
             HStack(spacing: 10) {
                 Image(systemName: "clock.arrow.circlepath")
-                    .font(.subheadline.weight(.medium))
+//                    .font(.subheadline.weight(.medium))
+                    .adaptiveTextStyle(.subheadline)
+                    .fontWeight(.medium)
                     .foregroundStyle(Color.Token.iconAccent)
                     .frame(width: 20)
 
                 Text(text)
-                    .font(.subheadline)
+//                    .font(.subheadline)
+                    .adaptiveTextStyle(.subheadline)
+
                     .foregroundStyle(Color.Token.textPrimary)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -239,7 +252,9 @@ private struct SearchSuggestionRow: View {
                 if isHovering {
                     Button(action: onDelete) {
                         Image(systemName: "xmark")
-                            .font(.caption2.weight(.semibold))
+//                            .font(.caption2.weight(.semibold))
+                            .adaptiveTextStyle(.caption2)
+                            .fontWeight(.semibold)
                             .foregroundStyle(Color.Token.textSecondary)
                             .frame(width: 24, height: 24)
                             .background(Color.Token.surfaceRaised, in: Circle())
@@ -274,15 +289,20 @@ private struct EmptyRecentSearchesView: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
-                .font(.title.weight(.light))
+//                .font(.title.weight(.light))
+                .adaptiveTextStyle(.title)
+                .fontWeight(.light)
                 .foregroundStyle(Color.Token.textSecondary.opacity(0.5))
 
             Text("Nenhuma pesquisa recente")
-                .font(.subheadline.weight(.medium))
+//                .font(.subheadline.weight(.medium))
+                .adaptiveTextStyle(.subheadline)
+                .fontWeight(Font.Weight.medium)
                 .foregroundStyle(Color.Token.textSecondary)
 
             Text("Suas pesquisas aparecerão aqui")
-                .font(.caption)
+//                .font(.caption)
+                .adaptiveTextStyle(.caption)
                 .foregroundStyle(Color.Token.textSecondary.opacity(0.7))
         }
         .frame(maxWidth: .infinity)

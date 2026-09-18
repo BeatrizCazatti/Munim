@@ -7,14 +7,26 @@ enum OnboardingStep {
     case permissions
 }
 
+/// Cores exclusivas do fluxo de onboarding.
+///
+/// O fundo permanece branco em qualquer aparência, sem alterar o esquema de
+/// cores escolhido para o restante do app.
+enum OnboardingTheme {
+    static let background = Color(red: 1, green: 1, blue: 1) // #FFFFFF
+}
+
 struct OnboardingView: View {
-    let onFinish: () -> Void
+    /// Entrega o callback capturado por `ASWebAuthenticationSession` ao fluxo
+    /// principal do app. Em macOS, esse callback não passa necessariamente por
+    /// `onOpenURL`, pois a sessão de autenticação pode consumi-lo primeiro.
+    let onFinish: (URL) -> Void
 
     @Environment(AuthService.self) private var authService
 
     @State private var currentStep: OnboardingStep = .welcome
     @State private var isLoadingAuthURL: Bool = false
     @State private var authError: String?
+    @State private var authenticationSession: ASWebAuthenticationSession?
 
     @ScaledMetric(relativeTo: .title) private var welcomeTitleSize: CGFloat = 28
     @ScaledMetric(relativeTo: .largeTitle) private var brandTitleSize: CGFloat = 64
@@ -24,7 +36,7 @@ struct OnboardingView: View {
     @ScaledMetric(relativeTo: .body) private var supportingTextSize: CGFloat = 15
     @ScaledMetric(relativeTo: .body) private var buttonTextSize: CGFloat = 16
 
-    init(onFinish: @escaping () -> Void = {}) {
+    init(onFinish: @escaping (URL) -> Void = { _ in }) {
         self.onFinish = onFinish
     }
     
@@ -80,19 +92,25 @@ struct OnboardingView: View {
             .padding(.trailing, 40)
             .padding(.bottom, 60) // Adicionado espaçamento interno inferior para afastar o botão da borda
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .background(Color.white) // Garante fundo branco específico no lado esquerdo
+            .background(OnboardingTheme.background)
             
-            // Lado Direito: Imagem estática de fundo/prévia
+            // Lado Direito: a imagem ocupa seu painel e preserva o alinhamento à direita.
             GeometryReader { geometry in
                 Image("OnboardingTest")
                     .resizable()
                     .scaledToFill()
-                    .frame(height: geometry.size.height)
+                    .frame(
+                        width: geometry.size.width,
+                        height: geometry.size.height,
+                        alignment: .trailing
+                    )
+                    .clipped()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 960, height: 600)
-        .background(Color.white) // Fundo branco global da janela
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(OnboardingTheme.background)
+        .ignoresSafeArea()
         .animation(.easeInOut(duration: 0.25), value: currentStep)
         .animation(.easeInOut(duration: 0.2), value: authError)
     }
@@ -226,16 +244,26 @@ struct OnboardingView: View {
                 
                 let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: callbackURLScheme) { callbackURL, error in
                     if let error = error {
-                        authError = String(localized: "Não foi possível conectar ao servidor: \(error.localizedDescription)")
+                        Task { @MainActor in
+                            authenticationSession = nil
+                            authError = "Não foi possível conectar ao servidor: \(error.localizedDescription)"
+                        }
                         return
                     }
                     
                     guard let callbackURL = callbackURL else { return }
-                    // Lógica de tratamento do callback aqui
+                    Task { @MainActor in
+                        authenticationSession = nil
+                        onFinish(callbackURL)
+                    }
                 }
                 
                 // Atribui a classe compatível com NSObject
                 session.presentationContextProvider = presentationProvider
+                // A sessão precisa permanecer viva até o Google redirecionar ao app.
+                // Sem essa referência, ela é desalocada ao fim desta função e o
+                // callback nunca atualiza `AuthService.isAuthenticated`.
+                authenticationSession = session
                 session.start()
                 
             } catch {

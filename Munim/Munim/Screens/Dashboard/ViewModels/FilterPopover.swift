@@ -23,7 +23,8 @@ struct FilterPopover: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Filtrar por")
-                .font(.headline)
+//                .font(.headline)
+                .adaptiveTextStyle(.headline)
 
             Divider()
 
@@ -75,7 +76,9 @@ struct FilterPopover: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.subheadline.weight(.medium))
+//                .font(.subheadline.weight(.medium))
+                .adaptiveTextStyle(.subheadline)
+                .fontWeight(.medium)
             content()
         }
     }
@@ -96,12 +99,14 @@ struct FilterSearchField: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass")
-                .font(.caption)
+//                .font(.caption)
+                .adaptiveTextStyle(.caption)
                 .foregroundStyle(.secondary)
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
         }
-        .font(.caption)
+//        .font(.caption)
+        .adaptiveTextStyle(.caption)
         .padding(.horizontal, 10)
         .frame(height: 24)
         .background(Capsule().fill(Color.Token.interactiveAccent.opacity(0.09)))
@@ -134,7 +139,8 @@ struct FilterChip: View {
                 Text(title)
                     .lineLimit(1)
             }
-            .font(.caption)
+//            .font(.caption)
+            .adaptiveTextStyle(.caption)
             .foregroundStyle(isSelected ? Color.Token.textOnAccent : .primary)
             .padding(.horizontal, 10)
             .frame(minHeight: 24)

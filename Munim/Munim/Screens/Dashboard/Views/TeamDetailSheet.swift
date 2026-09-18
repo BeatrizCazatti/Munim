@@ -56,7 +56,9 @@ struct TeamDetailSheet: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     Text(team.name.capitalized)
-                        .font(.largeTitle.weight(.semibold))
+//                        .font(.largeTitle.weight(.semibold))
+                        .adaptiveTextStyle(.largeTitle)
+                        .fontWeight(.semibold)
 
                     Spacer()
 
@@ -294,10 +296,13 @@ private struct TeamTimelineRow: View {
         HStack(alignment: .center, spacing: 24) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(activity.category.rawValue)
-                    .font(.headline.weight(.semibold))
+//                    .font(.headline.weight(.semibold))
+                    .adaptiveTextStyle(.headline)
+                    .fontWeight(.semibold)
                     .foregroundStyle(categoryColor)
                 Text(activity.date)
-                    .font(.subheadline)
+//                    .font(.subheadline)
+                    .adaptiveTextStyle(.subheadline)
                     .foregroundStyle(theme.accentColor.opacity(0.72))
             }
             .frame(width: 180, alignment: .center)
@@ -315,9 +320,13 @@ private struct TeamTimelineRow: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 Text(activity.title)
-                    .font(.title3.weight(.semibold))
+//                    .font(.title3.weight(.semibold))
+                    .adaptiveTextStyle(.title3)
+                    .fontWeight(.semibold)
+                    
                 Text(activity.detail)
-                    .font(.body)
+//                    .font(.body)
+                    .adaptiveTextStyle(.body)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -338,7 +347,9 @@ private struct TeamTimelineRow: View {
             if isHovering || isPinned {
                 Button(action: togglePin) {
                     Image(systemName: isPinned ? "pin.fill" : "pin")
-                        .font(.title3.weight(.medium))
+//                        .font(.title3.weight(.medium))
+                        .adaptiveTextStyle(.title3)
+                        .fontWeight(.medium)
                         .foregroundStyle(isPinned ? theme.accentColor : .secondary)
                         .frame(width: 36, height: 36)
                         .contentShape(Circle())
@@ -400,17 +411,23 @@ private struct PinnedActivityBanner: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Tópico fixado \(position) de \(total)")
-                        .font(.caption.weight(.semibold))
+//                        .font(.caption.weight(.semibold))
+                        .adaptiveTextStyle(.caption)
+                        .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
                     Text(activity.title)
-                        .font(.subheadline.weight(.semibold))
+//                        .font(.subheadline.weight(.semibold))
+                        .adaptiveTextStyle(.subheadline)
+                        .fontWeight(Font.Weight.semibold)
                         .lineLimit(1)
                 }
 
                 Spacer(minLength: 12)
 
                 Image(systemName: "arrow.down")
-                    .font(.subheadline.weight(.semibold))
+//                    .font(.subheadline.weight(.semibold))
+                    .adaptiveTextStyle(.subheadline)
+                    .fontWeight(Font.Weight.semibold)
                     .foregroundStyle(theme.accentColor)
             }
             .padding(.horizontal, 14)
@@ -462,7 +479,9 @@ private struct PinnedActivitiesSheet: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Tópicos fixados")
-                    .font(.title2.weight(.semibold))
+//                    .font(.title2.weight(.semibold))
+                    .adaptiveTextStyle(.title2)
+                    .fontWeight(.semibold)
                 Spacer()
                 Button("Fechar", systemImage: "xmark", action: { dismiss() })
                     .labelStyle(.iconOnly)
@@ -477,7 +496,9 @@ private struct PinnedActivitiesSheet: View {
                     ForEach(Array(activities.enumerated()), id: \.element.id) { index, activity in
                         HStack(spacing: 12) {
                             Text("\(index + 1)")
-                                .font(.caption.weight(.bold))
+//                                .font(.caption.weight(.bold))
+                                .adaptiveTextStyle(.caption)
+                                .fontWeight(.bold)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 18)
 
@@ -486,10 +507,13 @@ private struct PinnedActivitiesSheet: View {
                             } label: {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Label(activity.category.rawValue, systemImage: activity.category.systemImage)
-                                        .font(.caption)
+//                                        .font(.caption)
+                                        .adaptiveTextStyle(.caption)
                                         .foregroundStyle(.secondary)
                                     Text(activity.title)
-                                        .font(.subheadline.weight(.semibold))
+//                                        .font(.subheadline.weight(.semibold))
+                                        .adaptiveTextStyle(.subheadline)
+                                        .fontWeight(.semibold)
                                         .lineLimit(1)
                                 }
                             }
@@ -561,10 +585,12 @@ private struct TeamMemberCard: View {
             VStack(spacing: 12) {
                 TeamMemberAvatar(member: member, highlighted: isSelected, size: 92)
                 Text(member.name)
-                    .font(.headline)
+//                    .font(.headline)
+                    .adaptiveTextStyle(.headline)
                     .lineLimit(1)
                 Text(member.role)
-                    .font(.subheadline)
+//                    .font(.subheadline)
+                    .adaptiveTextStyle(.headline)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
@@ -587,7 +613,10 @@ private struct TeamMemberDetailView: View {
                 HStack(spacing: 14) {
                     TeamMemberAvatar(member: member, highlighted: false, size: 72)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(member.name).font(.title2.weight(.semibold))
+                        Text(member.name)
+//                            .font(.title2.weight(.semibold))
+                            .adaptiveTextStyle(.title2)
+                            .fontWeight(.semibold)
                         Text(member.email).foregroundStyle(.secondary)
                     }
                 }
@@ -600,12 +629,17 @@ private struct TeamMemberDetailView: View {
                 Divider()
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Últimas atividades").font(.headline)
+                    Text("Últimas atividades")
+                        .adaptiveTextStyle(.headline)
                     ForEach(member.recentActivities, id: \.self) { activity in
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(activity).font(.subheadline.weight(.semibold))
+                            Text(activity)
+//                                .font(.subheadline.weight(.semibold))
+                                .adaptiveTextStyle(.headline)
+                                .fontWeight(.semibold)
                             Label("5 ago, 2026", systemImage: "calendar")
-                                .font(.caption)
+//                                .font(.caption)
+                                .adaptiveTextStyle(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -615,9 +649,13 @@ private struct TeamMemberDetailView: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     Label("Projetos relacionados", systemImage: "briefcase")
-                        .font(.headline)
+//                        .font(.headline)
+                        .adaptiveTextStyle(.headline)
                     ForEach(member.relatedProjects, id: \.self) { project in
-                        Text(project).font(.subheadline.weight(.semibold))
+                        Text(project)
+//                            .font(.subheadline.weight(.semibold))
+                            .adaptiveTextStyle(.subheadline)
+                            .fontWeight(.semibold)
                     }
                 }
             }
@@ -639,7 +677,8 @@ private struct TeamMemberDetailRow: View {
             Spacer()
             Text(value).fontWeight(.medium)
         }
-        .font(.subheadline)
+//        .font(.subheadline)
+        .adaptiveTextStyle(.subheadline)
     }
 }
 
@@ -681,7 +720,9 @@ private struct ProfileAvatar: View {
             .fill(highlighted ? Color.Token.interactiveAccent : color.opacity(0.20))
             .overlay {
                 Text(initials)
-                    .font(size >= 60 ? .title3.weight(.semibold) : .caption.weight(.semibold))
+//                    .font(size >= 60 ? .title3.weight(.semibold) : .caption.weight(.semibold))
+                    .adaptiveTextStyle(size >= 60 ? .title3 : .caption)
+                    .fontWeight(.semibold)
                     .foregroundStyle(highlighted ? Color.Token.textOnAccent : color)
             }
             .frame(width: size, height: size)

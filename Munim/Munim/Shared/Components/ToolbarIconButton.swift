@@ -12,7 +12,9 @@ struct ToolbarIconButton: View {
                 Circle().fill(Color.Token.interactiveAccent)
 
                 Image(systemName: systemImage)
-                    .font(.title3.weight(.medium))
+//                    .font(.title3.weight(.medium))
+                    .adaptiveTextStyle(.title3)
+                    .fontWeight(.medium)
                     .foregroundStyle(Color.Token.textOnAccent)
             }
             .frame(width: 48, height: 48)

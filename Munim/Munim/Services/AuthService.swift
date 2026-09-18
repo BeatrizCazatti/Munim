@@ -140,5 +140,32 @@ final class AuthService {
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         return components?.queryItems?.first(where: { $0.name == "error" })?.value
     }
-}
 
+    /// Lê apenas os identificadores públicos do payload do JWT para associar o
+    /// perfil retornado por `/api/people` à conta que acabou de autenticar.
+    /// A validação e a autorização continuam sendo responsabilidade do backend.
+    static func identity(from token: String) -> (personID: UUID?, email: String?) {
+        let segments = token.split(separator: ".")
+        guard segments.count >= 2 else { return (nil, nil) }
+
+        var payload = String(segments[1])
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        payload += String(repeating: "=", count: (4 - payload.count % 4) % 4)
+
+        guard let data = Data(base64Encoded: payload),
+              let claims = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return (nil, nil)
+        }
+
+        let rawID = ["personID", "personId", "person_id", "userID", "userId", "sub"]
+            .compactMap { claims[$0] as? String }
+            .first
+        let personID = rawID.flatMap(UUID.init(uuidString:))
+        let email = ["email", "userEmail", "user_email"]
+            .compactMap { claims[$0] as? String }
+            .first
+
+        return (personID, email)
+    }
+}

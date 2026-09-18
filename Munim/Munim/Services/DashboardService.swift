@@ -227,8 +227,8 @@ final class DashboardService {
                     id: nil,
                     title: draft.title,
                     description: draft.description,
-                    owner: nil,
-                    deadline: nil,
+                    owner: draft.assigneeID,
+                    deadline: draft.scheduledAt,
                     priority: draft.priority.rawValue.capitalized,
                     status: "Todo",
                     relatedProject: nil,
@@ -244,12 +244,12 @@ final class DashboardService {
                 let newMeeting = MeetingDTO(
                     id: nil,
                     title: draft.title,
-                    date: Date(),
-                    time: draft.dateText.isEmpty ? "10:00" : draft.dateText,
+                    date: draft.scheduledAt,
+                    time: draft.scheduledAt.formatted(date: .omitted, time: .shortened),
                     location: draft.location.isEmpty ? nil : draft.location,
                     meetingLink: nil,
                     meetingType: "Geral",
-                    participants: [],
+                    participants: draft.assigneeID.map { [$0] } ?? [],
                     agenda: draft.description.isEmpty ? nil : draft.description,
                     confidence: 1.0
                 )
@@ -261,8 +261,8 @@ final class DashboardService {
                     id: nil,
                     summary: draft.title,
                     rationale: draft.description,
-                    date: Date(),
-                    people: [],
+                    date: draft.scheduledAt,
+                    people: draft.assigneeID.map { [$0] } ?? [],
                     relatedProject: nil,
                     attachments: [],
                     confidence: 1.0
@@ -275,7 +275,7 @@ final class DashboardService {
                     id: nil,
                     description: draft.title,
                     changeType: draft.location.isEmpty ? "Atualização" : draft.location,
-                    date: Date(),
+                    date: draft.scheduledAt,
                     relatedProject: nil,
                     confidence: 1.0
                 )
@@ -297,43 +297,51 @@ final class DashboardService {
         }
     }
 
-    func updateItem(itemID: BoardItem.ID, draft: BoardItemDraft) async {
+    func updateItem(itemID: BoardItem.ID, draft: BoardItemDraft) async throws {
         // A UI já foi atualizada de forma otimista em DashboardView.
         // Aqui apenas persistimos no backend e atualizamos o array interno de DTOs,
         // SEM reconstruir boardColumns para não sobrescrever o estado local da UI.
-        do {
-            if let taskIndex = tasks.firstIndex(where: { $0.id == itemID }) {
-                var task = tasks[taskIndex]
-                task.title = draft.title
-                task.description = draft.description
-                task.priority = draft.priority.rawValue.capitalized
-                task.modality = draft.location.isEmpty ? nil : draft.location
-                let saved: TaskDTO = try await APIClient.shared.request("/api/tasks/\(itemID)", method: "PUT", body: task)
-                tasks[taskIndex] = saved
-            } else if let meetingIndex = meetings.firstIndex(where: { $0.id == itemID }) {
-                var meeting = meetings[meetingIndex]
-                meeting.title = draft.title
-                meeting.agenda = draft.description
-                meeting.location = draft.location.isEmpty ? nil : draft.location
-                let saved: MeetingDTO = try await APIClient.shared.request("/api/meetings/\(itemID)", method: "PUT", body: meeting)
-                meetings[meetingIndex] = saved
-            } else if let decisionIndex = decisions.firstIndex(where: { $0.id == itemID }) {
-                var decision = decisions[decisionIndex]
-                decision.summary = draft.title
-                decision.rationale = draft.description
-                let saved: DecisionDTO = try await APIClient.shared.request("/api/decisions/\(itemID)", method: "PUT", body: decision)
-                decisions[decisionIndex] = saved
-            } else if let changeIndex = changes.firstIndex(where: { $0.id == itemID }) {
-                var change = changes[changeIndex]
-                change.description = draft.title
-                change.changeType = draft.location.isEmpty ? change.changeType : draft.location
-                let saved: ChangeDTO = try await APIClient.shared.request("/api/changes/\(itemID)", method: "PUT", body: change)
-                changes[changeIndex] = saved
+        if let taskIndex = tasks.firstIndex(where: { $0.id == itemID }) {
+            var task = tasks[taskIndex]
+            task.title = draft.title
+            task.description = draft.description
+            task.owner = draft.assigneeID
+            task.deadline = draft.scheduledAt
+            task.priority = draft.priority.rawValue.capitalized
+            task.modality = draft.location.isEmpty ? nil : draft.location
+            let saved: TaskDTO = try await APIClient.shared.request("/api/tasks/\(itemID)", method: "PUT", body: task)
+            tasks[taskIndex] = saved
+        } else if let meetingIndex = meetings.firstIndex(where: { $0.id == itemID }) {
+            var meeting = meetings[meetingIndex]
+            meeting.title = draft.title
+            meeting.date = draft.scheduledAt
+            meeting.time = draft.scheduledAt.formatted(date: .omitted, time: .shortened)
+            meeting.participants = draft.assigneeID.map { [$0] } ?? []
+            meeting.agenda = draft.description.isEmpty ? nil : draft.description
+            meeting.location = draft.location.isEmpty ? nil : draft.location
+            let saved: MeetingDTO = try await APIClient.shared.request("/api/meetings/\(itemID)", method: "PUT", body: meeting)
+            meetings[meetingIndex] = saved
+        } else if let decisionIndex = decisions.firstIndex(where: { $0.id == itemID }) {
+            var decision = decisions[decisionIndex]
+            decision.summary = draft.title
+            decision.rationale = draft.description
+            decision.date = draft.scheduledAt
+            decision.people = draft.assigneeID.map { [$0] } ?? []
+            let saved: DecisionDTO = try await APIClient.shared.request("/api/decisions/\(itemID)", method: "PUT", body: decision)
+            decisions[decisionIndex] = saved
+        } else if let changeIndex = changes.firstIndex(where: { $0.id == itemID }) {
+            var change = changes[changeIndex]
+            change.description = draft.title
+            change.date = draft.scheduledAt
+            if !draft.location.isEmpty {
+                change.changeType = draft.location
             }
-            // ✅ NÃO rebuildar boardColumns aqui — a UI já está correta localmente.
-        } catch {
-            print("[DashboardService] ❌ Erro ao atualizar item: \(error)")
+            let saved: ChangeDTO = try await APIClient.shared.request("/api/changes/\(itemID)", method: "PUT", body: change)
+            changes[changeIndex] = saved
+        } else {
+            throw APIError.notFound
         }
+        // Não reconstruir boardColumns aqui: a UI otimista já representa o estado salvo.
     }
 
     func deleteItem(itemID: BoardItem.ID) async {

@@ -283,7 +283,9 @@ private struct ClearSegmentBadge: View {
 
     var body: some View {
         Text("\(count)")
-            .font(.caption2.weight(.bold))
+//            .font(.caption2.weight(.bold))
+            .adaptiveTextStyle(.caption2)
+            .fontWeight(.bold)
             .monospacedDigit()
             .foregroundStyle(Color.Token.textOnAccent)
             .frame(width: 20, height: 20)

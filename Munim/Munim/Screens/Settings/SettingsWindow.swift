@@ -85,6 +85,29 @@ private struct GeneralSettingsView: View {
             }
 
             Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Escala do texto")
+                        Spacer()
+                        Text("\(Int(model.textScale * 100))%")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                    Slider(value: $model.textScale, in: 0.8...2.0, step: 0.1)
+                    Text("Exemplo")
+                        .font(.system(size: 13 * model.textScale))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 4)
+            } header: {
+                Text("Tamanho do Texto")
+            } footer: {
+                Text("Ajusta o tamanho base de todos os textos do app no macOS. Valor padrão: 150%.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 Picker("Sincronização automática", selection: $model.syncInterval) {
                     ForEach(SyncInterval.allCases) { interval in
                         Label(interval.title, systemImage: interval.icon).tag(interval)
@@ -169,31 +192,6 @@ private struct IntegrationsSettingsView: View {
                                 .foregroundStyle(.orange)
                         }
                     }
-                    Button(role: .destructive) {
-                        model.disconnectGoogle()
-                    } label: {
-                        Label("Desconectar Conta", systemImage: "person.crop.circle.badge.minus")
-                    }
-                    // Na sua View:
-                    Button(role: .destructive) {
-                        showDeleteConfirmation = true
-                    } label: {
-                        Text("Excluir Conta permanentemente")
-                    }
-                    .confirmationDialog(
-                        "Tem certeza que deseja excluir sua conta permanentemente?",
-                        isPresented: $showDeleteConfirmation,
-                        titleVisibility: .visible
-                    ) {
-                        Button("Excluir Conta", role: .destructive) {
-                            Task {
-                                await model.deleteAccount()
-                            }
-                        }
-                        Button("Cancelar", role: .cancel) {}
-                    }
-
-
                 }
             } header: {
                 Text("Google Workspace")

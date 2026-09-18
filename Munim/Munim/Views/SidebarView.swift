@@ -16,21 +16,25 @@ struct SidebarView: View {
             DisclosureGroup(isExpanded: $isHistoryExpanded) {
                 NavigationLink(value: SidebarDestination.archived) {
                     Label("Arquivados", systemImage: "archivebox")
+                        .adaptiveTextStyle(.caption)
                 }
                 .padding(.leading, 8)
 
                 NavigationLink(value: SidebarDestination.deleted) {
                     Label("Excluídos", systemImage: "trash")
+                        .adaptiveTextStyle(.caption)
                 }
                 .padding(.leading, 8)
             } label: {
                 NavigationLink(value: SidebarDestination.dashboard) {
                     Label("Dashboard", systemImage: "house")
+                        .adaptiveTextStyle(.caption)
                 }
             }
 
             NavigationLink(value: SidebarDestination.attachments) {
                 Label("Anexos", systemImage: "folder")
+                    .adaptiveTextStyle(.caption)
             }
         }
         .listStyle(.sidebar)

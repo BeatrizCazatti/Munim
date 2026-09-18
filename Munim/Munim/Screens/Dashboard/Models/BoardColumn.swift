@@ -31,6 +31,49 @@ final class ReviewedItemsStore {
     }
 }
 
+/// Guarda localmente os cards arquivados enquanto o backend ainda não expõe
+/// um contrato de arquivamento. A chave estável é o UUID do item remoto, para
+/// que o estado sobreviva a recarregamentos e novas sessões do aplicativo.
+final class ArchivedItemsStore {
+    static let shared = ArchivedItemsStore()
+    private let key = "Munim.ArchivedItems"
+
+    struct Record: Codable {
+        let persistentKey: String
+        let storedAt: Date
+    }
+
+    private var recordsByKey: [String: Record] {
+        get {
+            guard let data = UserDefaults.standard.data(forKey: key),
+                  let records = try? JSONDecoder().decode([String: Record].self, from: data) else {
+                return [:]
+            }
+            return records
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue) else { return }
+            UserDefaults.standard.set(data, forKey: key)
+        }
+    }
+
+    func record(for persistentKey: String) -> Record? {
+        recordsByKey[persistentKey]
+    }
+
+    func archive(_ persistentKey: String, at date: Date = .now) {
+        var records = recordsByKey
+        records[persistentKey] = Record(persistentKey: persistentKey, storedAt: date)
+        recordsByKey = records
+    }
+
+    func restore(_ persistentKey: String) {
+        var records = recordsByKey
+        records.removeValue(forKey: persistentKey)
+        recordsByKey = records
+    }
+}
+
 /// Uma coluna do board (ex.: "Atendimento", "Design"...).
 struct BoardColumn: Identifiable, Hashable {
     let id: UUID
@@ -164,8 +207,15 @@ struct BoardItem: Identifiable, Hashable {
             title: draft.title,
             badgeCount: 1,
             assignees: draft.assignees,
-            rawDate: Date(),
-            dateText: draft.dateText.emptyAsNil,
+            rawDate: draft.scheduledAt,
+            dateText: draft.scheduledAt.formatted(
+                .dateTime
+                    .locale(Locale(identifier: "pt_BR"))
+                    .day()
+                    .month(.abbreviated)
+                    .hour()
+                    .minute()
+            ),
             location: draft.location.emptyAsNil,
             descriptionText: draft.description.emptyAsNil,
             priority: draft.priority,
@@ -186,7 +236,15 @@ struct BoardItem: Identifiable, Hashable {
         title = draft.title
         descriptionText = draft.description.emptyAsNil
         assignees = draft.assignees
-        dateText = draft.dateText.emptyAsNil
+        rawDate = draft.scheduledAt
+        dateText = draft.scheduledAt.formatted(
+            .dateTime
+                .locale(Locale(identifier: "pt_BR"))
+                .day()
+                .month(.abbreviated)
+                .hour()
+                .minute()
+        )
         location = draft.location.emptyAsNil
         priority = draft.priority
     }
@@ -208,7 +266,8 @@ struct BoardItemDraft {
     var title: String
     var description: String
     var assignees: [Assignee]
-    var dateText: String
+    var assigneeID: UUID?
+    var scheduledAt: Date
     var location: String
     var priority: BoardItemPriority
 
@@ -216,7 +275,8 @@ struct BoardItemDraft {
         title = ""
         description = ""
         assignees = []
-        dateText = ""
+        assigneeID = nil
+        scheduledAt = .now
         location = ""
         priority = .unset
     }
@@ -225,7 +285,8 @@ struct BoardItemDraft {
         title = item.title
         description = item.descriptionText ?? ""
         assignees = item.assignees
-        dateText = item.dateText ?? ""
+        assigneeID = nil
+        scheduledAt = item.rawDate ?? .now
         location = item.location ?? ""
         priority = item.priority
     }

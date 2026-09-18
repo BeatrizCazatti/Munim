@@ -71,13 +71,17 @@ struct WeekRangePicker: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Selecione um período (máx. 30 dias)")
-                .font(.title2.weight(.semibold))
+//                .font(.title2.weight(.semibold))
+                .adaptiveTextStyle(.title2)
+                .fontWeight(.semibold)
                 .foregroundStyle(theme.calendar)
                 .padding(.bottom, 28)
 
             HStack {
                 Text(monthTitle)
-                    .font(.title3.weight(.semibold))
+//                    .font(.title3.weight(.semibold))
+                    .adaptiveTextStyle(.title3)
+                    .fontWeight(.semibold)
                     .foregroundStyle(Color.secondary)
                 Spacer()
                 monthButton(systemImage: "chevron.left", label: "Mês anterior") {
@@ -92,7 +96,9 @@ struct WeekRangePicker: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 0) {
                 ForEach(weekdaySymbols, id: \.self) { symbol in
                     Text(symbol)
-                        .font(.caption.weight(.semibold))
+//                        .font(.caption.weight(.semibold))
+                        .adaptiveTextStyle(.caption)
+                        .fontWeight(.semibold)
                         .foregroundStyle(Color.secondary)
                         .frame(maxWidth: .infinity, minHeight: 32)
                 }
@@ -209,7 +215,9 @@ private extension WeekRangePicker {
     func monthButton(systemImage: String, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.subheadline.weight(.semibold))
+//                .font(.subheadline.weight(.semibold))
+                .adaptiveTextStyle(.subheadline)
+                .fontWeight(.semibold)
                 .frame(width: 32, height: 32)
                 .contentShape(Circle())
         }
@@ -242,7 +250,9 @@ private struct CalendarDayButton: View {
                 .overlay { dayIndicator }
                 .overlay {
                     Text(day.date.formatted(.dateTime.day()))
-                        .font(.body.weight(.medium))
+//                        .font(.body.weight(.medium))
+                        .adaptiveTextStyle(.body)
+                        .fontWeight(.medium)
                         .foregroundStyle(foregroundColor)
                         .frame(width: 42, height: 42)
                 }

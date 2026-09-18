@@ -111,8 +111,8 @@ struct LoadingView: View {
             
             Spacer()
         }
-        .frame(width: 960, height: 600)
-        .background(Color.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(OnboardingTheme.background)
         .ignoresSafeArea()
         .onAppear { isAnimating = true }
         .task { await performSyncs() }

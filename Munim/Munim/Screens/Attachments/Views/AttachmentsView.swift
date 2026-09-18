@@ -157,7 +157,8 @@ private struct AttachmentFolderGridView: View {
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .center, spacing: 20) {
                         Text("Arquivos e documentos")
-                            .font(.largeTitle.weight(.regular))
+                            .fontWeight(.regular)
+                            .adaptiveTextStyle(.largeTitle)
 
                         Spacer(minLength: 24)
 
@@ -166,7 +167,9 @@ private struct AttachmentFolderGridView: View {
 
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Arquivos e documentos")
-                            .font(.largeTitle.weight(.regular))
+//                            .font(.largeTitle.weight(.regular))
+                            .adaptiveTextStyle(.largeTitle)
+                            .fontWeight(.regular)
 
                         HStack {
                             Spacer()
@@ -235,8 +238,9 @@ private struct AttachmentFolderTile: View {
         Button(action: action) {
             VStack(alignment: .center, spacing: 10) {
                 AttachmentFolderIcon(width: 92, height: 70)
-                Text(folder.title)
-                    .font(.subheadline)
+                Text(folder.rawValue)
+//                    .font(.subheadline)
+                    .adaptiveTextStyle(.subheadline)
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -258,14 +262,18 @@ private struct AttachmentFolderListRow: View {
             HStack(spacing: 14) {
                 AttachmentFolderIcon(width: 42, height: 32)
 
-                Text(folder.title)
-                    .font(.body.weight(.medium))
+                Text(folder.rawValue)
+//                    .font(.body.weight(.medium))
+                    .adaptiveTextStyle(.body)
+                    .fontWeight(.medium)
                     .foregroundStyle(.primary)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
+//                    .font(.caption.weight(.semibold))
+                    .adaptiveTextStyle(.caption)
+                    .fontWeight(.semibold)
                     .foregroundStyle(.tertiary)
             }
             .padding(.horizontal, 18)
@@ -362,8 +370,9 @@ private struct AttachmentFolderHeader: View {
             HStack(spacing: 10) {
                 AttachmentFolderIcon(width: 42, height: 32)
 
-                Text(folder.title)
-                    .font(.title)
+                Text(folder.rawValue)
+//                    .font(.title)
+                    .adaptiveTextStyle(.title)
                     .foregroundStyle(.primary)
             }
 
@@ -425,7 +434,8 @@ private struct AttachmentFilterPopover: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Filtrar por")
-                .font(.headline)
+//                .font(.headline)
+                .adaptiveTextStyle(.headline)
 
             Divider()
 
@@ -471,7 +481,9 @@ private struct AttachmentFilterPopover: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.subheadline.weight(.medium))
+//                .font(.subheadline.weight(.medium))
+                .adaptiveTextStyle(.subheadline)
+                .fontWeight(Font.Weight.medium)
             content()
         }
     }
@@ -522,7 +534,8 @@ private struct AttachmentColumnHeader: View {
             Text("Dono").frame(width: 210, alignment: .leading)
             Text("Localização").frame(width: 280, alignment: .leading)
         }
-        .font(.subheadline)
+//        .font(.subheadline)
+        .adaptiveTextStyle(.subheadline)
         .foregroundStyle(.secondary)
         .padding(.horizontal, 20)
         .padding(.bottom, 8)
@@ -562,7 +575,9 @@ private struct AttachmentNameLabelStyle: LabelStyle {
         HStack(spacing: 16) {
             configuration.icon.foregroundStyle(.primary).frame(width: 24)
             configuration.title
-                .font(.body.weight(.semibold))
+//                .font(.body.weight(.semibold))
+                .adaptiveTextStyle(.body)
+                .fontWeight(Font.Weight.semibold)
                 .foregroundStyle(.primary)
                 .lineLimit(1)
         }

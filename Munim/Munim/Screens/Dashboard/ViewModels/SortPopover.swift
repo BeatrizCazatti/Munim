@@ -9,7 +9,9 @@ struct SortPopover: View {
         VStack(alignment: .leading, spacing: 0) {
 
             Text("Ordenar por")
-                .font(.subheadline.weight(.medium))
+//                .font(.subheadline.weight(.medium))
+                .adaptiveTextStyle(.subheadline)
+                .fontWeight(.medium)
                 .foregroundStyle(.primary)
                 .padding(.horizontal, 12)
                 .padding(.top, 12)
@@ -51,14 +53,17 @@ struct SortOptionRow: View {
             HStack(spacing: 8) {
 
                 Image(systemName: isSelected ? "checkmark" : "circle")
-                .font(.subheadline.weight(.semibold))
+//                .font(.subheadline.weight(.semibold))
+                    .adaptiveTextStyle(.subheadline)
+                    .fontWeight(.semibold)
                 .frame(
                     width: 16,
                     alignment: .center
                 )
 
                 Text(option.title)
-                    .font(.subheadline)
+//                    .font(.subheadline)
+                    .adaptiveTextStyle(.subheadline)
 
                 Spacer()
             }

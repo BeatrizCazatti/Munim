@@ -22,7 +22,7 @@ struct InformationDetailSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Cabeçalho (Botão de fechar)
+            // Cabeçalho
             HStack {
                 Spacer()
                 Button("Fechar", systemImage: "xmark", action: { dismiss() })
@@ -37,26 +37,35 @@ struct InformationDetailSheet: View {
 
             // Conteúdo Principal (Scrollable)
             ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    // Título (Nome do Item)
-                    Text(information.name)
-                        .font(.title.weight(.semibold))
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    // Metadados (Dono, Criado em, Link)
-                    InformationMetadataView(details: information.details)
+                VStack(alignment: .center) {
+                    HStack {
+                        Image(systemName: "document.fill")
+                            .font(.system(size: 100, weight: .medium))
+                            .foregroundStyle(theme.accentColor)
+                            .frame(width: 200, height: 200)
 
-                    // Linha de separação (Opcional, mas na imagem há uma divisão visual)
-                    Divider()
-                    
-                    // Área de Ações (Rodapé, adaptada como sub-view)
-                    InformationActionFooterView(link: information.details.link)
-                        .padding(.top, 20)
+                        // Título (Nome do Item)
+                        VStack (spacing: 20) {
+                            Text(information.name)
+                                .adaptiveTextStyle(.title)
+                                .fontWeight(.semibold)
+                                .fixedSize(horizontal: false, vertical: true)
+                            
+                            // Metadados (Dono, Criado em, Link)
+                            InformationMetadataView(details: information.details)
+                            
+                            Spacer()
+                            
+                            // Área de Ações (Rodapé, adaptada como sub-view)
+                            InformationActionFooterView(link: information.details.link)
+                        }
+                    }
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 30)
                 }
-                .padding(28)
             }
         }
-        .frame(minWidth: 640, idealWidth: 640, minHeight: 460, idealHeight: 460) // Ajustado para o tamanho da imagem
+        .frame(minWidth: 640, idealWidth: 640, minHeight: 348)
     }
 }
 
@@ -80,7 +89,8 @@ private struct InformationMetadataView: View {
                  Text(details.link)
                      .foregroundStyle(.primary) // Ou uma cor de link específica
             }
-            .font(.body)
+//            .font(.body)
+            .adaptiveTextStyle(.body)
         }
     }
 }
@@ -133,7 +143,8 @@ private struct InformationDetailRow: View {
             Text(value)
                 .fontWeight(.medium)
         }
-        .font(.body)
+//        .font(.body)
+        .adaptiveTextStyle(.body)
     }
 }
 
