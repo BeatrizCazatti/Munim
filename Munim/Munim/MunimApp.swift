@@ -84,9 +84,9 @@ struct MunimApp: App {
     private func handleDeepLink(_ url: URL) {
         if let errorCode = AuthService.extractError(from: url) {
             if errorCode == "workspace_required" || errorCode == "workspace_admin_required" {
-                authService.authError = "Esta aplicação exige uma conta administradora do Google Workspace. Faça login com o e-mail de administrador da sua organização."
+                authService.authError = String(localized: "Esta aplicação exige uma conta administradora do Google Workspace. Faça login com o e-mail de administrador da sua organização.")
             } else {
-                authService.authError = "Erro na autenticação: \(errorCode)"
+                authService.authError = String(localized: "Erro na autenticação: \(errorCode)")
             }
             return
         }
@@ -108,7 +108,7 @@ struct MunimApp: App {
                 // Buscar person logada
                 let people: [PersonDTO] = try await APIClient.shared.request("/api/people")
                 let person = people.first ?? PersonDTO(
-                    name: "Usuário",
+                    name: String(localized: "Usuário"),
                     jobTitle: "",
                     active: true,
                     joinedAt: Date()
@@ -125,7 +125,7 @@ struct MunimApp: App {
                 await MainActor.run {
                     authService.handleCallback(
                         token: token,
-                        person: PersonDTO(name: "Usuário", jobTitle: "", active: true, joinedAt: Date())
+                        person: PersonDTO(name: String(localized: "Usuário"), jobTitle: "", active: true, joinedAt: Date())
                     )
                 }
             }
