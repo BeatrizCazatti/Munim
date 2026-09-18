@@ -8,8 +8,8 @@ private enum FolderPresentation: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .icons: "Ícones"
-        case .list: "Lista"
+        case .icons: String(localized: "Ícones")
+        case .list: String(localized: "Lista")
         }
     }
 
@@ -235,7 +235,7 @@ private struct AttachmentFolderTile: View {
         Button(action: action) {
             VStack(alignment: .center, spacing: 10) {
                 AttachmentFolderIcon(width: 92, height: 70)
-                Text(folder.rawValue)
+                Text(folder.title)
                     .font(.subheadline)
                     .foregroundStyle(.primary)
                     .lineLimit(2)
@@ -245,7 +245,7 @@ private struct AttachmentFolderTile: View {
             .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Abre a pasta \(folder.rawValue)")
+        .accessibilityHint(String(localized: "Abre a pasta \(folder.title)"))
     }
 }
 
@@ -258,7 +258,7 @@ private struct AttachmentFolderListRow: View {
             HStack(spacing: 14) {
                 AttachmentFolderIcon(width: 42, height: 32)
 
-                Text(folder.rawValue)
+                Text(folder.title)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
 
@@ -273,7 +273,7 @@ private struct AttachmentFolderListRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Abre a pasta \(folder.rawValue)")
+        .accessibilityHint(String(localized: "Abre a pasta \(folder.title)"))
     }
 }
 
@@ -343,7 +343,7 @@ private struct AttachmentFolderDetailView: View {
             .padding(40)
             .frame(maxWidth: 1_600, alignment: .leading)
         }
-        .navigationTitle(folder.rawValue)
+        .navigationTitle(folder.title)
     }
 }
 
@@ -362,7 +362,7 @@ private struct AttachmentFolderHeader: View {
             HStack(spacing: 10) {
                 AttachmentFolderIcon(width: 42, height: 32)
 
-                Text(folder.rawValue)
+                Text(folder.title)
                     .font(.title)
                     .foregroundStyle(.primary)
             }
@@ -432,7 +432,7 @@ private struct AttachmentFilterPopover: View {
             section(title: "Tipo") {
                 FlowLayout(spacing: 6) {
                     ForEach(AttachmentType.allCases) { type in
-                        singleChoiceChip(title: type.rawValue, isSelected: selectedType == type) {
+                        singleChoiceChip(title: type.title, isSelected: selectedType == type) {
                             selectedType = selectedType == type ? nil : type
                         }
                     }

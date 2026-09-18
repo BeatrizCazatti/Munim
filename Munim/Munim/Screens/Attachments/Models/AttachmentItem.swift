@@ -89,6 +89,15 @@ enum AttachmentFolder: String, CaseIterable, Identifiable {
     case commercial = "Comercial"
 
     var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .meetingMinutes: String(localized: "Atas de reunião")
+        case .productAnalysis: String(localized: "Análise de Produto")
+        case .contracts: String(localized: "Contratos")
+        case .commercial: String(localized: "Comercial")
+        }
+    }
 }
 
 enum AttachmentType: String, CaseIterable, Identifiable {
@@ -98,6 +107,15 @@ enum AttachmentType: String, CaseIterable, Identifiable {
     case information = "Informações"
 
     var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .document: String(localized: "Documento")
+        case .spreadsheet: String(localized: "Planilha")
+        case .presentation: String(localized: "Apresentação")
+        case .information: String(localized: "Informações")
+        }
+    }
 }
 
 /// Diferencia documentos de informações extraídas das fontes conectadas.
@@ -118,4 +136,11 @@ enum AttachmentResultScope: String, CaseIterable, Identifiable {
     case files = "Arquivos"
 
     var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .data: String(localized: "Dados")
+        case .files: String(localized: "Arquivos")
+        }
+    }
 }

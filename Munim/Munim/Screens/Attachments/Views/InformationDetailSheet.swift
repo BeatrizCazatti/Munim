@@ -127,7 +127,7 @@ private struct InformationDetailRow: View {
             Image(systemName: systemImage)
                 .frame(width: 20)
                 .foregroundStyle(.secondary)
-            Text(label)
+            Text(LocalizedStringKey(label))
                 .foregroundStyle(.secondary)
                 .frame(width: 112, alignment: .leading)
             Text(value)

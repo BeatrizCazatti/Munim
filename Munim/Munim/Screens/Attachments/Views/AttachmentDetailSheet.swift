@@ -96,7 +96,7 @@ private struct AttachmentDetailRow: View {
         HStack(alignment: .firstTextBaseline, spacing: 14) {
             Image(systemName: systemImage)
                 .frame(width: 20)
-            Text(label)
+            Text(LocalizedStringKey(label))
                 .foregroundStyle(.secondary)
                 .frame(width: 112, alignment: .leading)
             Text(value)
