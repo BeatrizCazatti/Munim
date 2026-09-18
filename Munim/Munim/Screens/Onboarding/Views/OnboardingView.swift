@@ -192,7 +192,7 @@ struct OnboardingView: View {
         .disabled(isLoadingAuthURL)
     }
     
-    private var buttonTitle: String {
+    private var buttonTitle: LocalizedStringKey {
         switch currentStep {
         case .welcome:
             return "Começar"
@@ -235,6 +235,7 @@ struct OnboardingView: View {
 
     private func startGoogleOAuth() {
         isLoadingAuthURL = true
+        
         Task {
             defer { isLoadingAuthURL = false }
             do {
@@ -266,7 +267,8 @@ struct OnboardingView: View {
                 session.start()
                 
             } catch {
-                authError = "Não foi possível conectar ao servidor: \(error.localizedDescription)"
+                
+                authError = String(localized: "Não foi possível conectar ao servidor: \(error.localizedDescription)")
             }
         }
     }

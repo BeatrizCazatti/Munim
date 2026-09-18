@@ -8,7 +8,7 @@ struct SearchFieldView: View {
     @State private var showSuggestions: Bool = false
     @FocusState private var isTextFieldFocused: Bool
 
-    var placeholder: String = "Buscar cards, pessoas e locais"
+    var placeholder: LocalizedStringKey = "Buscar cards, pessoas e locais"
     var onSearchSubmit: (() -> Void)?
     var onSearchChange: ((String) -> Void)?
 
@@ -158,7 +158,9 @@ struct SearchFieldView: View {
     }
 }
 
-/// Seção de sugestões (tanto para pesquisas recentes quanto sugestões filtradas)
+// MARK: - Subviews de Suporte
+
+/// Seção de sugestões/pesquisas recentes
 private struct SearchSuggestionsSection: View {
     let title: String
     let items: [String]

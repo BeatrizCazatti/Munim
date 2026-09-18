@@ -384,7 +384,7 @@ private struct SidebarStoredItemsDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                Text(title)
+                Text(LocalizedStringKey(title))
 //                    .font(.largeTitle.weight(.regular))
                     .adaptiveTextStyle(.largeTitle)
                     .fontWeight(Font.Weight.regular)
@@ -536,7 +536,7 @@ struct GreetingHeaderView: View {
 
     var body: some View {
         (
-            Text("Olá, " + name + "!")
+            Text("Olá, \(name)!")
 //                .font(.title.weight(.regular))
                 .adaptiveTextStyle(.title)
                 .fontWeight(.regular)
@@ -907,12 +907,10 @@ private struct DashboardRefreshStatusView: View {
 
     private var formattedDate: String {
         guard let lastUpdated else {
-            return "Sincronizado recentemente"
+            return String(localized: "Sincronizado recentemente")
         }
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "pt_BR")
-        formatter.dateFormat = "d 'de' MMMM, HH:mm'h'"
-        return "Última atualização em \(formatter.string(from: lastUpdated))"
+        let dateStr = lastUpdated.formatted(date: .abbreviated, time: .shortened)
+        return String(localized: "Última atualização em \(dateStr)")
     }
     
     var body: some View {
@@ -927,7 +925,7 @@ private struct DashboardRefreshStatusView: View {
 //                            .font(.caption2)
                             .adaptiveTextStyle(.caption2)
                     }
-                    Text(isRefreshing ? "Atualizando…" : "Atualizar")
+                    Text(isRefreshing ? LocalizedStringKey("Atualizando…") : LocalizedStringKey("Atualizar"))
                 }
             }
 //            .font(.caption.weight(.semibold))
@@ -1139,7 +1137,7 @@ private struct StoredItemsBoardView: View {
     var body: some View {
         if items.isEmpty {
             ContentUnavailableView(
-                "Nenhum card \(title.lowercased())",
+                title == "Arquivados" ? String(localized: "Nenhum item arquivado") : String(localized: "Nenhum item excluído"),
                 systemImage: "tray"
             )
             .frame(maxWidth: .infinity, minHeight: 220)
@@ -1233,7 +1231,7 @@ private struct StoredBoardItemCard: View {
                 systemImage: "calendar"
             )
             .adaptiveTextStyle(.caption)            .foregroundStyle(Color.Token.textSecondary)
-            Button(actionTitle, systemImage: actionSystemImage, action: action)
+            Button(LocalizedStringKey(actionTitle), systemImage: actionSystemImage, action: action)
                 .buttonStyle(.bordered)
                 .controlSize(.small)
         }

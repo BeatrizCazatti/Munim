@@ -10,9 +10,9 @@ enum InterfaceAppearance: String, CaseIterable, Identifiable {
     var id: Self { self }
     var title: String {
         switch self {
-        case .system: "Automático"
-        case .light: "Claro"
-        case .dark: "Escuro"
+        case .system: String(localized: "Automático")
+        case .light: String(localized: "Claro")
+        case .dark: String(localized: "Escuro")
         }
     }
     var icon: String {
@@ -42,6 +42,17 @@ enum SyncInterval: String, CaseIterable, Identifiable {
     case manual = "Manual"
 
     var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .realtime: String(localized: "Tempo real (WebSocket)")
+        case .fiveMinutes: String(localized: "A cada 5 minutos")
+        case .fifteenMinutes: String(localized: "A cada 15 minutos")
+        case .thirtyMinutes: String(localized: "A cada 30 minutos")
+        case .sixtyMinutes: String(localized: "A cada 60 minutos")
+        case .manual: String(localized: "Manual")
+        }
+    }
 
     /// Valor em minutos para enviar ao backend (nil = manual/realtime).
     var minutes: Int? {
@@ -88,10 +99,10 @@ enum ConnectionStatus: Equatable {
 
     var title: String {
         switch self {
-        case .unknown: "Não verificado"
-        case .testing: "Verificando…"
-        case .online(let ping): "Online · \(ping) ms"
-        case .offline: "Offline"
+        case .unknown: String(localized: "Não verificado")
+        case .testing: String(localized: "Verificando…")
+        case .online(let ping): String(localized: "Online · \(ping) ms")
+        case .offline: String(localized: "Offline")
         }
     }
 

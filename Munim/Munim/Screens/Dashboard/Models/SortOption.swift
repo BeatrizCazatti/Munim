@@ -1,3 +1,5 @@
+import Foundation
+
 enum SortOption: String, CaseIterable, Identifiable {
     case newest
     case oldest
@@ -9,13 +11,13 @@ enum SortOption: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .newest:
-            "Mais recente"
+            String(localized: "Mais recente")
         case .oldest:
-            "Mais antigo"
+            String(localized: "Mais antigo")
         case .name:
-            "Nome"
+            String(localized: "Nome")
         case .priority:
-            "Prioridade"
+            String(localized: "Prioridade")
         }
     }
 }

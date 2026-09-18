@@ -45,11 +45,11 @@ enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
-        case .general: "Geral"
-        case .integrations: "Integrações"
-        case .server: "Servidor & Backend"
-        case .team: "Equipe"
-        case .automations: "Automações"
+        case .general: String(localized: "Geral")
+        case .integrations: String(localized: "Integrações")
+        case .server: String(localized: "Servidor & Backend")
+        case .team: String(localized: "Equipe")
+        case .automations: String(localized: "Automações")
         }
     }
 
@@ -110,7 +110,7 @@ private struct GeneralSettingsView: View {
             Section {
                 Picker("Sincronização automática", selection: $model.syncInterval) {
                     ForEach(SyncInterval.allCases) { interval in
-                        Label(interval.rawValue, systemImage: interval.icon).tag(interval)
+                        Label(interval.title, systemImage: interval.icon).tag(interval)
                     }
                 }
                 .pickerStyle(.menu)

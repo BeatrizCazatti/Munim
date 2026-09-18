@@ -12,7 +12,7 @@ struct DebugInspectorView: View {
     @State private var selectedLog: DebugLogger.LogEntry?
     @State private var filterLevel: DebugLogger.LogLevel?
     @State private var searchText: String = ""
-    @State private var testResultText: String = "Clique em um endpoint para testar a resposta."
+    @State private var testResultText: String = String(localized: "Clique em um endpoint para testar a resposta.")
     @State private var isTesting: Bool = false
 
     enum DebugTab: String, CaseIterable {
@@ -36,7 +36,7 @@ struct DebugInspectorView: View {
 
                 Picker("", selection: $selectedTab) {
                     ForEach(DebugTab.allCases, id: \.self) { tab in
-                        Text(tab.rawValue).tag(tab)
+                        Text(LocalizedStringKey(tab.rawValue)).tag(tab)
                     }
                 }
                 .pickerStyle(.segmented)

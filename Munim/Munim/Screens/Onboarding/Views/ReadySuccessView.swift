@@ -102,7 +102,7 @@ struct ReadySuccessView: View {
                 .font(.system(size: 14))
                 .padding(.top, 1)
 
-            Text(message)
+            Text(LocalizedStringKey(message))
                 .font(.system(size: 13, weight: .regular))
                 .foregroundColor(Theme.warningText)
                 .lineSpacing(3)
