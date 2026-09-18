@@ -16,19 +16,19 @@ enum APIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unauthorized:
-            return "Sessão expirada. Faça login novamente."
+            return String(localized: "Sessão expirada. Faça login novamente.")
         case .notFound:
-            return "Recurso não encontrado."
+            return String(localized: "Recurso não encontrado.")
         case .conflict(let reason):
             return reason
         case .serverError(let reason):
             return reason
         case .decodingError(let error):
-            return "Erro ao processar resposta: \(error.localizedDescription)"
+            return String(localized: "Erro ao processar resposta: \(error.localizedDescription)")
         case .networkError(let error):
-            return "Erro de rede: \(error.localizedDescription)"
+            return String(localized: "Erro de rede: \(error.localizedDescription)")
         case .invalidURL:
-            return "URL inválida."
+            return String(localized: "URL inválida.")
         }
     }
 }
