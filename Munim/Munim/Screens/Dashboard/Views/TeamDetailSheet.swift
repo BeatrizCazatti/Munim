@@ -634,7 +634,7 @@ private struct TeamMemberDetailRow: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Label(label, systemImage: systemImage)
+            Label(LocalizedStringKey(label), systemImage: systemImage)
                 .foregroundStyle(.secondary)
             Spacer()
             Text(value).fontWeight(.medium)

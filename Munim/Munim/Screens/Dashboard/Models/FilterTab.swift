@@ -10,10 +10,10 @@ enum DashboardItemCategory: String, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .meeting: "Reunião"
-        case .task: "Tarefa"
-        case .change: "Mudança"
-        case .decision: "Decisão"
+        case .meeting: String(localized: "Reunião")
+        case .task: String(localized: "Tarefa")
+        case .change: String(localized: "Mudança")
+        case .decision: String(localized: "Decisão")
         }
     }
 }

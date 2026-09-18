@@ -241,10 +241,10 @@ enum BoardItemPriority: String, CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
-        case .high: "Alta"
-        case .medium: "Média"
-        case .low: "Baixa"
-        case .unset: "Definir prioridade"
+        case .high: String(localized: "Alta")
+        case .medium: String(localized: "Média")
+        case .low: String(localized: "Baixa")
+        case .unset: String(localized: "Definir prioridade")
         }
     }
 }

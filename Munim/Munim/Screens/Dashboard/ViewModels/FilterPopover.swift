@@ -42,7 +42,7 @@ struct FilterPopover: View {
                 FlowLayout(spacing: 6) {
                     ForEach(FilterSubject.allCases) { subject in
                         FilterChip(
-                            title: subject.rawValue,
+                            title: subject.title,
                             isSelected: selectedSubjects.contains(subject.rawValue),
                             showsCloseButton: false
                         ) {
