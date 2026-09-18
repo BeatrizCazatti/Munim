@@ -217,6 +217,7 @@ struct OnboardingView: View {
 
     private func startGoogleOAuth() {
         isLoadingAuthURL = true
+        
         Task {
             defer { isLoadingAuthURL = false }
             do {
@@ -238,6 +239,7 @@ struct OnboardingView: View {
                 session.start()
                 
             } catch {
+                
                 authError = String(localized: "Não foi possível conectar ao servidor: \(error.localizedDescription)")
             }
         }
