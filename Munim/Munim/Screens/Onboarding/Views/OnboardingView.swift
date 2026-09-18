@@ -7,6 +7,14 @@ enum OnboardingStep {
     case permissions
 }
 
+/// Cores exclusivas do fluxo de onboarding.
+///
+/// O fundo permanece branco em qualquer aparência, sem alterar o esquema de
+/// cores escolhido para o restante do app.
+enum OnboardingTheme {
+    static let background = Color(red: 1, green: 1, blue: 1) // #FFFFFF
+}
+
 struct OnboardingView: View {
     /// Entrega o callback capturado por `ASWebAuthenticationSession` ao fluxo
     /// principal do app. Em macOS, esse callback não passa necessariamente por
@@ -84,19 +92,25 @@ struct OnboardingView: View {
             .padding(.trailing, 40)
             .padding(.bottom, 60) // Adicionado espaçamento interno inferior para afastar o botão da borda
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .background(Color.white) // Garante fundo branco específico no lado esquerdo
+            .background(OnboardingTheme.background)
             
-            // Lado Direito: Imagem estática de fundo/prévia
+            // Lado Direito: a imagem ocupa seu painel e preserva o alinhamento à direita.
             GeometryReader { geometry in
                 Image("OnboardingTest")
                     .resizable()
                     .scaledToFill()
-                    .frame(height: geometry.size.height)
+                    .frame(
+                        width: geometry.size.width,
+                        height: geometry.size.height,
+                        alignment: .trailing
+                    )
+                    .clipped()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 960, height: 600)
-        .background(Color.white) // Fundo branco global da janela
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(OnboardingTheme.background)
+        .ignoresSafeArea()
         .animation(.easeInOut(duration: 0.25), value: currentStep)
         .animation(.easeInOut(duration: 0.2), value: authError)
     }
