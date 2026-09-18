@@ -86,7 +86,7 @@ struct LoadingView: View {
                     .foregroundColor(primaryBlue)
                     .multilineTextAlignment(.center)
 
-                Text(statusText)
+                Text(LocalizedStringKey(statusText))
                     .font(.system(size: bodySize, weight: .regular))
                     .foregroundColor(lightBlue)
                     .multilineTextAlignment(.center)
@@ -149,12 +149,12 @@ struct LoadingView: View {
                 "/api/integrations/directory/sync", method: "POST"
             )
             setStatus(
-                "\(result.usersSynced) usuários e \(result.groupsSynced) grupos importados",
+                String(localized: "\(result.usersSynced) usuários e \(result.groupsSynced) grupos importados"),
                 progress: 0.60
             )
         } catch APIError.notFound {
             // Ocorre quando: (a) conta não é admin Workspace, ou (b) integração não conectada
-            warnings.append("Directory não configurado — a conta usada pode não ser administradora de um Google Workspace.")
+            warnings.append(String(localized: "Directory não configurado — a conta usada pode não ser administradora de um Google Workspace."))
             setStatus("Diretório não configurado — continuando…", progress: 0.60)
         } catch {
             warnings.append("Directory: \(error.localizedDescription)")
@@ -168,11 +168,11 @@ struct LoadingView: View {
                 "/api/integrations/google-chat/sync", method: "POST"
             )
             setStatus(
-                "\(result.spacesSynced) espaços e \(result.messagesSynced) mensagens sincronizados",
+                String(localized: "\(result.spacesSynced) espaços e \(result.messagesSynced) mensagens sincronizados"),
                 progress: 1.0
             )
         } catch APIError.notFound {
-            warnings.append("Google Chat não configurado — verifique se a conta é administradora do Workspace.")
+            warnings.append(String(localized: "Google Chat não configurado — verifique se a conta é administradora do Workspace."))
             setStatus("Google Chat não configurado — continuando…", progress: 1.0)
         } catch {
             warnings.append("Google Chat: \(error.localizedDescription)")
@@ -180,7 +180,7 @@ struct LoadingView: View {
         }
 
         // Aviso fixo: Gmail/Calendar/Drive precisam de Service Account
-        warnings.append("Para sincronizar Gmail, Calendário e Drive, configure a Service Account em Ajustes → Integração.")
+        warnings.append(String(localized: "Para sincronizar Gmail, Calendário e Drive, configure a Service Account em Ajustes → Integração."))
 
         // Só exibir warning se houver mais do que o aviso padrão da SA
         syncWarning = warnings.joined(separator: "\n• ")

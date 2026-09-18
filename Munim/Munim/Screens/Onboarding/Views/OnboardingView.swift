@@ -174,7 +174,7 @@ struct OnboardingView: View {
         .disabled(isLoadingAuthURL)
     }
     
-    private var buttonTitle: String {
+    private var buttonTitle: LocalizedStringKey {
         switch currentStep {
         case .welcome:
             return "Começar"
@@ -225,7 +225,7 @@ struct OnboardingView: View {
                 
                 let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: callbackURLScheme) { callbackURL, error in
                     if let error = error {
-                        authError = "Não foi possível conectar ao servidor: \(error.localizedDescription)"
+                        authError = String(localized: "Não foi possível conectar ao servidor: \(error.localizedDescription)")
                         return
                     }
                     
@@ -238,7 +238,7 @@ struct OnboardingView: View {
                 session.start()
                 
             } catch {
-                authError = "Não foi possível conectar ao servidor: \(error.localizedDescription)"
+                authError = String(localized: "Não foi possível conectar ao servidor: \(error.localizedDescription)")
             }
         }
     }
